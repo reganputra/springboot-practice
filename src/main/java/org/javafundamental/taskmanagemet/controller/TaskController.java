@@ -8,8 +8,11 @@ import org.javafundamental.taskmanagemet.dto.TaskResponse;
 import org.javafundamental.taskmanagemet.dto.TaskStatResponse;
 import org.javafundamental.taskmanagemet.dto.UpdateStatusRequest;
 import org.javafundamental.taskmanagemet.dto.UpdateTaskRequest;
+import org.javafundamental.taskmanagemet.entity.TaskPriority;
+import org.javafundamental.taskmanagemet.entity.TaskStatus;
 import org.javafundamental.taskmanagemet.entity.User;
 import org.javafundamental.taskmanagemet.service.TaskService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -77,6 +80,22 @@ public class TaskController {
     public ResponseEntity<TaskResponse> updateTaskStatus(@PathVariable Long id,
             @Valid @RequestBody UpdateStatusRequest request, @AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(taskService.updateTaskStatus(id, request, currentUser));
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<TaskResponse>> getAllTask(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) TaskStatus status,
+            @RequestParam(required = false) TaskPriority priority,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @AuthenticationPrincipal User currentUser
+
+    ) {
+        return ResponseEntity
+                .ok(taskService.searchTasks(keyword, status, priority, page, size, sortBy, sortDir, currentUser));
     }
 
 }

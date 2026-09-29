@@ -12,6 +12,10 @@ import org.javafundamental.taskmanagemet.entity.TaskStatus;
 import org.javafundamental.taskmanagemet.entity.User;
 import org.javafundamental.taskmanagemet.exception.ResourceNotFoundException;
 import org.javafundamental.taskmanagemet.repository.TaskRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,6 +143,32 @@ public class TaskService {
             long overdue = taskRepository.countByUserIdAndDueDateBeforeAndStatusNot(userId, now, TaskStatus.DONE);
             return new TaskStatResponse(total, todo, inProgress, done, high, medium, low, overdue);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TaskResponse> searchTasks(
+            String keyword,
+            TaskStatus status,
+            TaskPriority priority,
+            int page,
+            int size,
+            String sortBy,
+            String sortDir,
+            User currentUser) {
+        // 1. Tentukan pengurutan (ASC / DESC)
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        // 2. Buat objek Pageable
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // 3. Jika bukan ADMIN, batasi pencarian hanya untuk userId milik currentUser
+        Long userId = (currentUser.getRole() == Role.ADMIN) ? null : currentUser.getId();
+
+        // 4. Jalankan query pencarian
+        Page<Task> taskPage = taskRepository.searchTasks(userId, status, priority, keyword, pageable);
+
+        // 5. Transformasi Page<Task> menjadi Page<TaskResponse>
+        return taskPage.map(TaskResponse::fromEntity);
     }
 
     // Helper method untuk memvalidasi kepemilikan task
