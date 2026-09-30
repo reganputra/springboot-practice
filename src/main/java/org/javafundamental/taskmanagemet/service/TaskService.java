@@ -155,19 +155,19 @@ public class TaskService {
             String sortBy,
             String sortDir,
             User currentUser) {
-        // 1. Tentukan pengurutan (ASC / DESC)
+        // Tentukan pengurutan (ASC / DESC)
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        // 2. Buat objek Pageable
+        // Buat objek Pageable
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        // 3. Jika bukan ADMIN, batasi pencarian hanya untuk userId milik currentUser
+        // Jika bukan ADMIN, batasi pencarian hanya untuk userId milik currentUser
         Long userId = (currentUser.getRole() == Role.ADMIN) ? null : currentUser.getId();
 
-        // 4. Jalankan query pencarian
+        // Jalankan query pencarian
         Page<Task> taskPage = taskRepository.searchTasks(userId, status, priority, keyword, pageable);
 
-        // 5. Transformasi Page<Task> menjadi Page<TaskResponse>
+        // Transformasi Page<Task> menjadi Page<TaskResponse>
         return taskPage.map(TaskResponse::fromEntity);
     }
 

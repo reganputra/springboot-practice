@@ -18,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
@@ -31,10 +29,11 @@ public class TaskController {
     // }
 
     // GET /api/tasks
-    @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTasks(@AuthenticationPrincipal User currentUser) {
-        return ResponseEntity.ok(taskService.getAllTasks(currentUser));
-    }
+    // @GetMapping
+    // public ResponseEntity<List<TaskResponse>>
+    // getAllTasks(@AuthenticationPrincipal User currentUser) {
+    // return ResponseEntity.ok(taskService.getAllTasks(currentUser));
+    // }
 
     @GetMapping("/stats")
     public ResponseEntity<TaskStatResponse> getTaskStats(@AuthenticationPrincipal User currentUser) {
@@ -83,7 +82,7 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<TaskResponse>> getAllTask(
+    public ResponseEntity<Page<TaskResponse>> searchAllTask(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) TaskStatus status,
             @RequestParam(required = false) TaskPriority priority,
